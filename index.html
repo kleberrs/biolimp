@@ -108,7 +108,7 @@
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Seu Orçamento</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Seu Pedido</h2>
                 <button id="close-cart" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -729,7 +729,7 @@
                                 <div>
                                     <h4 class="font-medium text-gray-800 mb-1">Telefone</h4>
                                     <p class="text-gray-600">(11) 1234-5678</p>
-                                    <p class="text-gray-600">(61) 95514-4795 (WhatsApp)</p>
+                                    <p class="text-gray-600">(61) 9551-4795 (WhatsApp)</p>
                                 </div>
                             </div>
                             
@@ -1108,7 +1108,7 @@
             const phoneNumber = customerPhone.value.replace(/\D/g, '');
             
             // Create message
-            let message = `Olá, meu nome é ${customerName.value}. Gostaria de solicitar um orçamento para os seguintes produtos:\n\n`;
+            let message = `Olá, meu nome é ${customerName.value}. Gostaria de solicitar um Pedido para os seguintes produtos:\n\n`;
             
             cart.forEach(item => {
                 message += `- ${item.name} (${item.quantity}x): R$ ${(item.price * item.quantity).toFixed(2)}\n`;
