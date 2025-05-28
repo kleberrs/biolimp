@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biolimp - Produtos Químicos de Limpeza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #015120 0%, #046c0b 50%, #08c757 100%);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link:hover {
+            color: #046c0b;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #046c0b;
+            transition: width .3s;
+        }
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+        .cart-item:hover {
+            background-color: #f8fafc;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="bg-green-600 text-white p-2 rounded-lg mr-3">
+                    <i class="fas fa-broom text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">BIOLIMP</h1>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8">
+                <a href="#home" class="nav-link text-gray-700 font-medium">Home</a>
+                <a href="#about" class="nav-link text-gray-700 font-medium">Sobre Nós</a>
+                <a href="#products" class="nav-link text-gray-700 font-medium">Produtos</a>
+                <a href="#contact" class="nav-link text-gray-700 font-medium">Contato</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <button id="cart-button" class="relative">
+                    <i class="fas fa-shopping-cart text-2xl text-gray-700"></i>
+                    <span id="cart-badge" class="cart-badge hidden">0</span>
+                </button>
+                <button class="md:hidden text-gray-700" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-4 shadow-lg">
+            <nav class="flex flex-col space-y-4">
+                <a href="#home" class="nav-link text-gray-700 font-medium">Home</a>
+                <a href="#about" class="nav-link text-gray-700 font-medium">Sobre Nós</a>
+                <a href="#products" class="nav-link text-gray-700 font-medium">Produtos</a>
+                <a href="#contact" class="nav-link text-gray-700 font-medium">Contato</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Seu Orçamento</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="cart-items" class="mb-6 space-y-4">
+                <!-- Cart items will be added here dynamically -->
+                <p id="empty-cart-message" class="text-gray-500 text-center py-8">Seu carrinho está vazio</p>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="font-medium text-gray-700">Subtotal:</span>
+                    <span id="cart-subtotal" class="font-medium">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="font-medium text-gray-700">Desconto:</span>
+                    <span id="cart-discount" class="font-medium">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between text-lg font-bold">
+                    <span>Total:</span>
+                    <span id="cart-total" class="text-green-600">R$ 0,00</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="customer-name" class="block text-gray-700 font-medium mb-2">Seu Nome</label>
+                <input type="text" id="customer-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-6">
+                <label for="customer-phone" class="block text-gray-700 font-medium mb-2">Telefone</label>
+                <input type="tel" id="customer-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <button id="send-whatsapp" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center">
+                <i class="fab fa-whatsapp mr-2 text-xl"></i> Enviar Orçamento via WhatsApp
+            </button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+    <!-- Product Details Modal -->
+    <div id="product-modal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center opacity-0 invisible px-4">
+        <div class="modal-content bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 id="modal-product-name" class="text-2xl font-bold text-gray-800"></h2>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-100 rounded-lg overflow-hidden">
+                        <img id="modal-product-img" src="" alt="" class="w-full h-64 object-contain">
+                    </div>
+                    
+                    <div>
+                        <p id="modal-product-description" class="text-gray-600 mb-4"></p>
+                        <div class="flex justify-between items-center mb-6">
+                            <span id="modal-product-price" class="font-bold text-green-600 text-xl"></span>
+                            <button id="modal-add-to-cart" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                Adicionar ao Carrinho
+                            </button>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4">
+                            <h3 class="text-lg font-semibold mb-3 text-gray-800">Especificações Técnicas</h3>
+                            <ul id="modal-product-specs" class="space-y-2 text-gray-600">
+                                <!-- Specifications will be added here dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient text-white py-20">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Soluções Químicas para uma Limpeza Perfeita</h2>
+                <p class="text-xl mb-8 opacity-90">Produtos de alta qualidade para limpeza automotiva, doméstica e industrial.</p>
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                    <a href="#products" class="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold text-center hover:bg-gray-100 transition">Nossos Produtos</a>
+                    <a href="#contact" class="border border-white px-6 py-3 rounded-lg font-semibold text-center hover:bg-white hover:text-green-600 transition">Fale Conosco</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <img src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                     alt="Produtos de limpeza profissional" 
+                     class="rounded-xl shadow-2xl max-w-md w-full object-cover h-96">
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Sobre a Biolimp</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4 text-green-600">Nossa Visão</h3>
+                    <p class="text-gray-600 mb-6">Ser referência nacional no mercado de produtos químicos para limpeza, oferecendo soluções inovadoras e sustentáveis que atendam às necessidades de nossos clientes com excelência.</p>
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-eye text-green-600 text-xl"></i>
+                        </div>
+                        <p class="text-gray-600">Excelência em cada produto desenvolvido</p>
+                    </div>
+                </div>
+                <div class="order-first md:order-last">
+                    <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                         alt="Visão Biolimp" 
+                         class="rounded-xl shadow-lg w-full h-96 object-cover">
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                         alt="Missão Biolimp" 
+                         class="rounded-xl shadow-lg w-full h-96 object-cover">
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4 text-green-600">Nossa Missão</h3>
+                    <p class="text-gray-600 mb-6">Desenvolver e comercializar produtos químicos para limpeza que garantam máxima eficiência, segurança e respeito ao meio ambiente, contribuindo para a satisfação dos clientes e o desenvolvimento sustentável.</p>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-leaf text-green-600 text-xl"></i>
+                        </div>
+                        <p class="text-gray-600">Compromisso com a sustentabilidade ambiental</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-flask text-green-600 text-xl"></i>
+                        </div>
+                        <p class="text-gray-600">Pesquisa e desenvolvimento contínuos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Nossos Produtos</h2>
+            
+            <!-- Product Categories -->
+            <div class="flex flex-wrap justify-center mb-12 gap-4">
+                <button class="category-btn bg-green-600 text-white px-6 py-2 rounded-full font-medium" data-category="all">Todos</button>
+                <button class="category-btn bg-white text-gray-700 px-6 py-2 rounded-full font-medium border border-gray-300 hover:bg-gray-100" data-category="automotive">Automotivos</button>
+                <button class="category-btn bg-white text-gray-700 px-6 py-2 rounded-full font-medium border border-gray-300 hover:bg-gray-100" data-category="household">Domésticos</button>
+                <button class="category-btn bg-white text-gray-700 px-6 py-2 rounded-full font-medium border border-gray-300 hover:bg-gray-100" data-category="bus">Ônibus</button>
+            </div>
+            
+            <!-- Automotive Products -->
+            <div class="mb-16 product-category" data-category="automotive">
+                <h3 class="text-2xl font-semibold mb-8 text-green-600 flex items-center">
+                    <i class="fas fa-car mr-3"></i> Produtos Automotivos
+                </h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Product 1 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1524&q=80" 
+                                 alt="Lavador Automotivo" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Lavador Automotivo</h4>
+                            <p class="text-gray-600 mb-4">Removedor eficiente de sujeiras e graxas sem danificar a pintura.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 28,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Lavador Automotivo" 
+                                            data-price="28.90" 
+                                            data-img="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1524&q=80"
+                                            data-description="Removedor eficiente de sujeiras e graxas sem danificar a pintura. Ideal para lavagem manual ou automática."
+                                            data-specs='["Volume: 1L", "pH neutro", "Não corrosivo", "Adequado para todos os tipos de pintura"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Lavador Automotivo" 
+                                            data-price="28.90" 
+                                            data-img="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1524&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 2 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Polidor de Pintura" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Polidor de Pintura</h4>
+                            <p class="text-gray-600 mb-4">Restaura o brilho original da pintura do veículo.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 42,50</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Polidor de Pintura" 
+                                            data-price="42.50" 
+                                            data-img="https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Restaura o brilho original da pintura do veículo, removendo pequenas imperfeições e riscos superficiais."
+                                            data-specs='["Volume: 500ml", "Abrasivo suave", "Proteção UV", "Durabilidade de 3 meses"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Polidor de Pintura" 
+                                            data-price="42.50" 
+                                            data-img="https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 3 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Limpa Estofados" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Limpa Estofados</h4>
+                            <p class="text-gray-600 mb-4">Remove manchas e odores de bancos e carpetes automotivos.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 35,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Limpa Estofados" 
+                                            data-price="35.90" 
+                                            data-img="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Remove manchas e odores de bancos e carpetes automotivos, deixando um aroma fresco e agradável."
+                                            data-specs='["Volume: 750ml", "Ação bactericida", "Adequado para tecidos e couro", "Secagem rápida"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Limpa Estofados" 
+                                            data-price="35.90" 
+                                            data-img="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 4 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1618843479313-40f4afdaf8f8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Desengripante" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Desengripante</h4>
+                            <p class="text-gray-600 mb-4">Remove ferrugem e lubrifica peças metálicas.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 39,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Desengripante" 
+                                            data-price="39.90" 
+                                            data-img="https://images.unsplash.com/photo-1618843479313-40f4afdaf8f8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Remove ferrugem e lubrifica peças metálicas, ideal para manutenção preventiva de componentes automotivos."
+                                            data-specs='["Volume: 400ml", "Ação penetrante", "Proteção contra corrosão", "Resistente à água"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Desengripante" 
+                                            data-price="39.90" 
+                                            data-img="https://images.unsplash.com/photo-1618843479313-40f4afdaf8f8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bus Products -->
+            <div class="mb-16 product-category" data-category="bus">
+                <h3 class="text-2xl font-semibold mb-8 text-green-600 flex items-center">
+                    <i class="fas fa-bus mr-3"></i> Produtos para Ônibus
+                </h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Product 1 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Lavador de Ônibus" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Lavador de Ônibus</h4>
+                            <p class="text-gray-600 mb-4">Formulação especial para limpeza pesada de veículos de grande porte.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 58,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Lavador de Ônibus" 
+                                            data-price="58.90" 
+                                            data-img="https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Formulação especial para limpeza pesada de veículos de grande porte, removendo sujeira acumulada sem danificar a pintura."
+                                            data-specs='["Volume: 5L", "Alta concentração", "Biodegradável", "Rendimento: 50 lavagens"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Lavador de Ônibus" 
+                                            data-price="58.90" 
+                                            data-img="https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 2 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Desinfetante para Bancos" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Desinfetante para Bancos</h4>
+                            <p class="text-gray-600 mb-4">Elimina bactérias e fungos dos estofados de ônibus.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 47,50</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Desinfetante para Bancos" 
+                                            data-price="47.50" 
+                                            data-img="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Elimina 99,9% das bactérias e fungos dos estofados de ônibus, garantindo higiene e segurança aos passageiros."
+                                            data-specs='["Volume: 2L", "Ação prolongada", "Não mancha tecidos", "Aroma neutro"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Desinfetante para Bancos" 
+                                            data-price="47.50" 
+                                            data-img="https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                                      <!-- Product 3 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1483&q=80" 
+                                 alt="Limpa Pneus" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Limpa Pneus</h4>
+                            <p class="text-gray-600 mb-4">Restaura o aspecto original dos pneus de ônibus.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 39,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Limpa Pneus" 
+                                            data-price="39.90" 
+                                            data-img="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1483&q=80"
+                                            data-description="Restaura o aspecto original dos pneus de ônibus, removendo resíduos de óleo e sujeira acumulada."
+                                            data-specs='["Volume: 1L", "Ação rápida", "Não escorre", "Proteção contra UV"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Limpa Pneus" 
+                                            data-price="39.90" 
+                                            data-img="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1483&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 4 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                             <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Desengraxante Industrial" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Desengraxante Industrial</h4>
+                            <p class="text-gray-600 mb-4">Remove graxas pesadas e óleos de motores e peças.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 65,00</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Desengraxante Industrial" 
+                                            data-price="65.00" 
+                                            data-img="https://images.unsplash.com/photo-1494905991052-ca5b7d70799f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Remove graxas pesadas e óleos de motores e peças de ônibus, ideal para manutenção de frota."
+                                            data-specs='["Volume: 5L", "Alta concentração", "Biodegradável", "Uso profissional"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Desengraxante Industrial" 
+                                            data-price="65.00" 
+                                            data-img="https://images.unsplash.com/photo-1494905991052-ca5b7d70799f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Household Products -->
+            <div class="product-category" data-category="household">
+                <h3 class="text-2xl font-semibold mb-8 text-green-600 flex items-center">
+                    <i class="fas fa-home mr-3"></i> Produtos Domésticos
+                </h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Product 1 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Detergente Concentrado" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Detergente Concentrado</h4>
+                            <p class="text-gray-600 mb-4">Eficiente na remoção de gordura com baixo consumo.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 12,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Detergente Concentrado" 
+                                            data-price="12.90" 
+                                            data-img="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Eficiente na remoção de gordura com baixo consumo, ideal para lavar louças e superfícies."
+                                            data-specs='["Volume: 500ml", "Rendimento: 200 lavagens", "pH neutro", "Biodegradável"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Detergente Concentrado" 
+                                            data-price="12.90" 
+                                            data-img="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 2 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Desinfetante" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Desinfetante</h4>
+                            <p class="text-gray-600 mb-4">Elimina 99,9% das bactérias com fragrância suave.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 15,50</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Desinfetante" 
+                                            data-price="15.50" 
+                                            data-img="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Elimina 99,9% das bactérias e vírus de superfícies, deixando um aroma suave e agradável."
+                                            data-specs='["Volume: 1L", "Ação bactericida e fungicida", "Aroma de lavanda", "Seguro para crianças e pets"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Desinfetante" 
+                                            data-price="15.50" 
+                                            data-img="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 3 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Limpa Vidros" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Limpa Vidros</h4>
+                            <p class="text-gray-600 mb-4">Deixa vidros e espelhos sem manchas e brilhantes.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 18,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Limpa Vidros" 
+                                            data-price="18.90" 
+                                            data-img="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Deixa vidros e espelhos sem manchas e brilhantes, com ação anti-resíduos e secagem rápida."
+                                            data-specs='["Volume: 750ml", "Ação anti-resíduos", "Sem álcool", "Borrife e limpe"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Limpa Vidros" 
+                                            data-price="18.90" 
+                                            data-img="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 4 -->
+                    <div class="product-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                        <div class="h-48 bg-gray-100 flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                 alt="Amaciante de Roupas" 
+                                 class="h-full w-full object-cover">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl mb-2 text-gray-800">Amaciante de Roupas</h4>
+                            <p class="text-gray-600 mb-4">Deixa as roupas macias e perfumadas por mais tempo.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-600">R$ 22,90</span>
+                                <div class="flex space-x-2">
+                                    <button class="details-btn bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition" 
+                                            data-name="Amaciante de Roupas" 
+                                            data-price="22.90" 
+                                            data-img="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                                            data-description="Deixa as roupas macias e perfumadas por mais tempo, com proteção contra estática e desgaste dos tecidos."
+                                            data-specs='["Volume: 2L", "Fragrância duradoura", "Hipoalergênico", "Rendimento: 40 lavagens"]'>
+                                        Detalhes
+                                    </button>
+                                    <button class="add-to-cart bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition" 
+                                            data-name="Amaciante de Roupas" 
+                                            data-price="22.90" 
+                                            data-img="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Entre em Contato</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <form class="space-y-6" id="contact-form">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-medium mb-2">Nome</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 font-medium mb-2">E-mail</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-medium mb-2">Telefone</label>
+                            <input type="tel" id="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 font-medium mb-2">Mensagem</label>
+                            <textarea id="message" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                        </div>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold w-full hover:bg-blue-700 transition">Enviar Mensagem</button>
+                    </form>
+                </div>
+                
+                <div>
+                    <div class="bg-gray-50 p-8 rounded-xl h-full">
+                        <h3 class="text-2xl font-semibold mb-6 text-gray-800">Informações de Contato</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-map-marker-alt text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">Endereço</h4>
+                                    <p class="text-gray-600">Rua dos Produtos Químicos, 123 - Centro, São Paulo/SP</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-phone-alt text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">Telefone</h4>
+                                    <p class="text-gray-600">(11) 1234-5678</p>
+                                    <p class="text-gray-600">(61) 95514-7955 (WhatsApp)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-envelope text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">E-mail</h4>
+                                    <p class="text-gray-600">contato@biolimp.com.br</p>
+                                    <p class="text-gray-600">vendas@biolimp.com.br</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-clock text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">Horário de Atendimento</h4>
+                                    <p class="text-gray-600">Segunda a Sexta: 8h às 18h</p>
+                                    <p class="text-gray-600">Sábado: 8h às 12h</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-600 text-white p-2 rounded-lg mr-3">
+                            <i class="fas fa-broom text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">BIOLIMP</h3>
+                    </div>
+                    <p class="text-gray-400">Soluções químicas de limpeza para automóveis, ônibus e uso doméstico com qualidade e eficiência.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition">Sobre Nós</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Produtos</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition">Contato</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Produtos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Automotivos</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Ônibus</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Domésticos</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Novidades</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Redes Sociais</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-400 transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-pink-600 transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400 mt-4">Siga-nos para novidades e promoções!</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 Biolimp. Todos os direitos reservados.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition">Termos de Uso</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Política de Privacidade</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Cart functionality
+        let cart = [];
+        const cartButton = document.getElementById('cart-button');
+        const cartBadge = document.getElementById('cart-badge');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCart = document.getElementById('close-cart');
+        const cartItems = document.getElementById('cart-items');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const cartSubtotal = document.getElementById('cart-subtotal');
+        const cartTotal = document.getElementById('cart-total');
+        const sendWhatsapp = document.getElementById('send-whatsapp');
+        const customerName = document.getElementById('customer-name');
+        const customerPhone = document.getElementById('customer-phone');
+
+        // Modal elements
+        const productModal = document.getElementById('product-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalProductName = document.getElementById('modal-product-name');
+        const modalProductImg = document.getElementById('modal-product-img');
+        const modalProductDescription = document.getElementById('modal-product-description');
+        const modalProductPrice = document.getElementById('modal-product-price');
+        const modalProductSpecs = document.getElementById('modal-product-specs');
+        const modalAddToCart = document.getElementById('modal-add-to-cart');
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Current product for modal
+        let currentProduct = null;
+
+        // Add to cart buttons
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const product = {
+                    name: this.dataset.name,
+                    price: parseFloat(this.dataset.price),
+                    img: this.dataset.img,
+                    quantity: 1
+                };
+
+                // Check if product already in cart
+                const existingItem = cart.find(item => item.name === product.name);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push(product);
+                }
+
+                updateCart();
+                openCart();
+            });
+        });
+
+        // Details buttons - open modal
+        document.querySelectorAll('.details-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                currentProduct = {
+                    name: this.dataset.name,
+                    price: parseFloat(this.dataset.price),
+                    img: this.dataset.img,
+                    description: this.dataset.description,
+                    specs: JSON.parse(this.dataset.specs)
+                };
+
+                // Update modal content
+                modalProductName.textContent = currentProduct.name;
+                modalProductImg.src = currentProduct.img;
+                modalProductImg.alt = currentProduct.name;
+                modalProductDescription.textContent = currentProduct.description;
+                modalProductPrice.textContent = `R$ ${currentProduct.price.toFixed(2)}`;
+
+                // Clear and add specs
+                modalProductSpecs.innerHTML = '';
+                currentProduct.specs.forEach(spec => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-start';
+                    li.innerHTML = `
+                        <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                        <span>${spec}</span>
+                    `;
+                    modalProductSpecs.appendChild(li);
+                });
+
+                // Open modal
+                productModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // Modal add to cart button
+        modalAddToCart.addEventListener('click', function() {
+            if (!currentProduct) return;
+
+            const product = {
+                name: currentProduct.name,
+                price: currentProduct.price,
+                img: currentProduct.img,
+                quantity: 1
+            };
+
+            // Check if product already in cart
+            const existingItem = cart.find(item => item.name === product.name);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push(product);
+            }
+
+            updateCart();
+            closeProductModal();
+            openCart();
+        });
+
+        // Close modal
+        closeModal.addEventListener('click', closeProductModal);
+        productModal.addEventListener('click', function(e) {
+            if (e.target === productModal) {
+                closeProductModal();
+            }
+        });
+
+        function closeProductModal() {
+            productModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Mobile menu toggle
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Update cart UI
+        function updateCart() {
+            // Update badge
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadge.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartBadge.classList.remove('hidden');
+            } else {
+                cartBadge.classList.add('hidden');
+            }
+
+            // Update cart items
+            cartItems.innerHTML = '';
+            
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                
+                cart.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'cart-item bg-gray-50 p-4 rounded-lg flex items-center';
+                    
+                    itemElement.innerHTML = `
+                        <div class="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden mr-4">
+                            <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">${item.name}</h4>
+                            <p class="text-gray-600">R$ ${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <button class="decrease-quantity text-gray-500 hover:text-green-600 px-2" data-index="${index}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity mx-2 w-8 text-center">${item.quantity}</span>
+                            <button class="increase-quantity text-gray-500 hover:text-green-600 px-2" data-index="${index}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="remove-item text-red-500 hover:text-red-700 ml-4" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    cartItems.appendChild(itemElement);
+                });
+
+                // Add event listeners to quantity buttons
+                document.querySelectorAll('.decrease-quantity').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        if (cart[index].quantity > 1) {
+                            cart[index].quantity -= 1;
+                        } else {
+                            cart.splice(index, 1);
+                        }
+                        updateCart();
+                    });
+                });
+
+                document.querySelectorAll('.increase-quantity').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        cart[index].quantity += 1;
+                        updateCart();
+                    });
+                });
+
+                document.querySelectorAll('.remove-item').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        cart.splice(index, 1);
+                        updateCart();
+                    });
+                });
+            }
+
+            // Update totals
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = 0; // You can add discount logic here
+            const total = subtotal - discount;
+
+            cartSubtotal.textContent = `R$ ${subtotal.toFixed(2)}`;
+            cartTotal.textContent = `R$ ${total.toFixed(2)}`;
+        }
+
+        // Cart sidebar toggle
+        cartButton.addEventListener('click', openCart);
+        closeCart.addEventListener('click', closeCartSidebar);
+        cartOverlay.addEventListener('click', closeCartSidebar);
+
+        function openCart() {
+            cartSidebar.classList.remove('translate-x-full');
+            cartOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCartSidebar() {
+            cartSidebar.classList.add('translate-x-full');
+            cartOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Send to WhatsApp
+        sendWhatsapp.addEventListener('click', function() {
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio. Adicione produtos antes de enviar.');
+                return;
+            }
+
+            if (!customerName.value.trim()) {
+                alert('Por favor, informe seu nome.');
+                return;
+            }
+
+            if (!customerPhone.value.trim()) {
+                alert('Por favor, informe seu telefone.');
+                return;
+            }
+
+            // Format phone number (remove non-numeric characters)
+            const phoneNumber = customerPhone.value.replace(/\D/g, '');
+            
+            // Create message
+            let message = `Olá, meu nome é ${customerName.value}. Gostaria de solicitar um orçamento para os seguintes produtos:\n\n`;
+            
+            cart.forEach(item => {
+                message += `- ${item.name} (${item.quantity}x): R$ ${(item.price * item.quantity).toFixed(2)}\n`;
+            });
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            message += `\nTotal: R$ ${subtotal.toFixed(2)}\n\nTelefone para contato: ${customerPhone.value}`;
+
+            // Encode message for URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Open WhatsApp
+            window.open(`https://wa.me/5561955147955?text=${encodedMessage}`, '_blank');
+        });
+
+        // Product category filter functionality
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.dataset.category;
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('bg-green-600', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300', 'hover:bg-gray-100');
+                });
+                
+                // Add active class to clicked button
+                this.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-300', 'hover:bg-gray-100');
+                this.classList.add('bg-green-600', 'text-white');
+                
+                // Show/hide products based on category
+                document.querySelectorAll('.product-category').forEach(section => {
+                    if (category === 'all' || section.dataset.category === category) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                // Close mobile menu if open
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would normally send the form data to a server
+            // For this example, we'll just show an alert
+            alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
